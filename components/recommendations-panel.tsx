@@ -1,0 +1,206 @@
+"use client"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import type { RiskAssessment, PatientData } from "@/app/page"
+import { CheckCircle, AlertTriangle, Clock, Pill, Activity, Users } from "lucide-react"
+
+interface RecommendationsPanelProps {
+  assessment: RiskAssessment
+  patientData: PatientData
+}
+
+export function RecommendationsPanel({ assessment, patientData }: RecommendationsPanelProps) {
+  const generateRecommendations = () => {
+    const recommendations = []
+
+    // Pre-operative recommendations
+    if (assessment.infectionRisk > 10) {
+      recommendations.push({
+        category: "Pre-operative",
+        priority: "High",
+        title: "Enhanced Infection Prevention Protocol",
+        description: "Implement extended antibiotic prophylaxis and enhanced skin preparation",
+        icon: <Pill className="h-4 w-4" />,
+        actions: [
+          "Start prophylactic antibiotics 1 hour before incision",
+          "Use chlorhexidine-alcohol skin preparation",
+          "Consider nasal decolonization if MRSA positive",
+        ],
+      })
+    }
+
+    if (patientData.demographics.bmi > 30) {
+      recommendations.push({
+        category: "Pre-operative",
+        priority: "Moderate",
+        title: "Weight Management Consultation",
+        description: "Refer to bariatric specialist for pre-operative optimization",
+        icon: <Activity className="h-4 w-4" />,
+        actions: [
+          "Nutritionist consultation",
+          "Consider pre-operative weight loss if surgery can be delayed",
+          "Optimize diabetes control if present",
+        ],
+      })
+    }
+
+    // Intraoperative recommendations
+    if (assessment.bleedingRisk > 8) {
+      recommendations.push({
+        category: "Intraoperative",
+        priority: "High",
+        title: "Enhanced Hemostasis Protocol",
+        description: "Implement advanced bleeding control measures",
+        icon: <AlertTriangle className="h-4 w-4" />,
+        actions: [
+          "Have blood products readily available",
+          "Use tranexamic acid if appropriate",
+          "Consider cell saver technology",
+        ],
+      })
+    }
+
+    if (assessment.mortalityRisk > 5) {
+      recommendations.push({
+        category: "Intraoperative",
+        priority: "High",
+        title: "Enhanced Monitoring",
+        description: "Implement advanced hemodynamic monitoring",
+        icon: <Activity className="h-4 w-4" />,
+        actions: [
+          "Consider arterial line placement",
+          "Enhanced cardiac monitoring",
+          "Anesthesia team briefing on high-risk status",
+        ],
+      })
+    }
+
+    // Post-operative recommendations
+    if (assessment.readmissionRisk > 15) {
+      recommendations.push({
+        category: "Post-operative",
+        priority: "High",
+        title: "Enhanced Recovery Protocol",
+        description: "Implement comprehensive post-operative care plan",
+        icon: <Clock className="h-4 w-4" />,
+        actions: [
+          "Extended monitoring period",
+          "Early mobilization protocol",
+          "Discharge planning with home health services",
+        ],
+      })
+    }
+
+    recommendations.push({
+      category: "Team Communication",
+      priority: "High",
+      title: "Multidisciplinary Team Alert",
+      description: "Ensure all team members are aware of high-risk status",
+      icon: <Users className="h-4 w-4" />,
+      actions: [
+        "Brief surgical team on risk factors",
+        "Alert ICU if post-operative monitoring needed",
+        "Coordinate with anesthesia for risk mitigation",
+      ],
+    })
+
+    return recommendations
+  }
+
+  const recommendations = generateRecommendations()
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "High":
+        return "destructive"
+      case "Moderate":
+        return "secondary"
+      case "Low":
+        return "default"
+      default:
+        return "outline"
+    }
+  }
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case "High":
+        return <AlertTriangle className="h-4 w-4" />
+      case "Moderate":
+        return <Clock className="h-4 w-4" />
+      case "Low":
+        return <CheckCircle className="h-4 w-4" />
+      default:
+        return <CheckCircle className="h-4 w-4" />
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Alert className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <AlertTriangle className="h-4 w-4 text-blue-600" />
+        <AlertTitle className="text-blue-900">LuminaX-alt AI Recommendations</AlertTitle>
+        <AlertDescription className="text-blue-800">
+          These evidence-based recommendations are generated by our advanced AI system and should be reviewed by the
+          clinical team for optimal patient outcomes.
+        </AlertDescription>
+      </Alert>
+
+      <div className="grid gap-4">
+        {recommendations.map((rec, index) => (
+          <Card key={index} className="shadow-md border-0 bg-white hover:shadow-lg transition-all duration-200">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  {rec.icon}
+                  {rec.title}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge variant={getPriorityColor(rec.priority)}>
+                    {getPriorityIcon(rec.priority)}
+                    {rec.priority} Priority
+                  </Badge>
+                  <Badge variant="outline">{rec.category}</Badge>
+                </div>
+              </div>
+              <CardDescription>{rec.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Recommended Actions:</h4>
+                <ul className="space-y-1">
+                  {rec.actions.map((action, actionIndex) => (
+                    <li key={actionIndex} className="flex items-start gap-2 text-sm">
+                      <CheckCircle className="h-3 w-3 mt-0.5 text-green-500 flex-shrink-0" />
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Summary Card */}
+      <Card className="border-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            LuminaX-alt Clinical Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-blue-100">
+            Based on our AI risk assessment, this patient requires enhanced monitoring and specialized protocols. The
+            multidisciplinary team should be alerted to the {assessment.overallRisk.toLowerCase()} risk status, with
+            particular attention to{" "}
+            {assessment.infectionRisk > assessment.bleedingRisk ? "infection prevention" : "bleeding control"}.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
